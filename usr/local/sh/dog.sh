@@ -23,7 +23,7 @@ stop_rcloned()
 
 start_kcp()
     {
-        /usr/local/bin/kcptun -l :38989 -t 127.0.0.1:28989 -key 041390 -mtu 1300 -sndwnd 2048 -rcvwnd 2048 -mode fast2 >/dev/null 2>&1 &
+        /usr/local/bin/kcptun -l : -t 127.0.0.1: -key -mtu 1300 -sndwnd 2048 -rcvwnd 2048 -mode fast2 >/dev/null 2>&1 &
 }
 stop_kcp()       
     {           
@@ -32,7 +32,7 @@ stop_kcp()
 
 start_udp()
     {
-        /usr/local/bin/udp2raw -s -l 0.0.0.0:8855 -r 127.0.0.1:38989 -k 041390 --raw-mode faketcp -a >/dev/null 2>&1 &
+        /usr/local/bin/udp2raw -s -l 0.0.0.0: -r 127.0.0.1: -k  --raw-mode faketcp -a >/dev/null 2>&1 &
 }
 stop_udp()      
     {             
@@ -41,7 +41,7 @@ stop_udp()
 
 start_spe()
     {
-        /usr/local/bin/spe2raw -s -l 0.0.0.0:8856 -r 127.0.0.1:48989 -k 041390 --raw-mode faketcp -a >/dev/null 2>&1 &
+        /usr/local/bin/spe2raw -s -l 0.0.0.0: -r 127.0.0.1: -k --raw-mode faketcp -a >/dev/null 2>&1 &
 }
 stop_spe()      
     {             
@@ -51,7 +51,7 @@ stop_spe()
 
 start_speeder()
     {
-        /usr/local/bin/speeder -s -l 0.0.0.0:48989 -r 127.0.0.1:28989  -f 20:10 -k 041390 --mode 0 >/dev/null 2>&1 &
+        /usr/local/bin/speeder -s -l 0.0.0.0: -r 127.0.0.1:  -f 20:10 -k --mode 0 >/dev/null 2>&1 &
 }
 stop_speeder()      
     {             
