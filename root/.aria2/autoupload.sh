@@ -1,7 +1,7 @@
 #!/bin/bash
 
 path="$3" 
-downloadpath='/home'
+downloadpath='/home' #下载目录
 
 if [ $2 -eq 0 ]
     then
@@ -15,7 +15,7 @@ IFS=$'\n';for file in `ls "$1"`
         then
             getdir "$1/$file"
         else
-            onedrivecmd put "$1/$file" od:"${1#*"$downloadpath"}"
+            onedrive -u "$downloadpath" "$1/$file"
         fi
     done
 }
@@ -25,7 +25,7 @@ filepath=$path
 path=${path%/*};
 if [ "$path" = "$downloadpath" ] && [ $2 -eq 1 ]
     then
-      onedrivecmd put "${filepath}" od:/
+      onedrive "${filepath}"
       rm "${filepath}"
       echo 3 > /proc/sys/vm/drop_caches
       swapoff -a && swapon -a
