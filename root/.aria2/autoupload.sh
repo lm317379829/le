@@ -25,15 +25,25 @@ filepath=$path
 path=${path%/*};
 if [ "$path" = "$downloadpath" ] && [ $2 -eq 1 ]
     then
-      onedrive "${filepath}"
-      rm "${filepath}"
-      echo 3 > /proc/sys/vm/drop_caches
-      swapoff -a && swapon -a
-      exit 0    
+      file=`ls $filepath`
+        if [ -f "$filepath/$file" ]
+then
+          onedrive "$filepath/$file"
+          rm -r "$filepath"
+          echo 3 > /proc/sys/vm/drop_caches
+          swapoff -a && swapon -a
+          exit 0
+        else
+          onedrive "$filepath"
+          rm "$filepath"  
+          echo 3 > /proc/sys/vm/drop_caches
+          swapoff -a && swapon -a
+          exit 0
+        fi            
 elif [ "$path" = "$downloadpath" ] 
     then  
-      getdir "${filepath}"
-      rm -r "${filepath}"
+      getdir "$filepath"
+      rm -r "$filepath"
       echo 3 > /proc/sys/vm/drop_caches
       swapoff -a && swapon -a
       exit 0
