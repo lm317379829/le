@@ -1,8 +1,8 @@
 #!/bin/bash
 . /etc/profile
 
-RXnow=$(cat /proc/net/dev|grep eth0|awk '{print $2}')
-TXnow=$(cat /proc/net/dev|grep eth0|awk '{print $10}')
+RXnow=$(cat /proc/net/dev|grep ens3|awk '{print $2}')
+TXnow=$(cat /proc/net/dev|grep ens3|awk '{print $10}')
 
 ins_net=$(find /tmp/ -iname 'net')
         if [ ! -n "$ins_net" ]; then     

@@ -1,7 +1,6 @@
 #!/bin/bash 
 . /etc/profile
 echo `date +%Y-%m-%d` 
-find /var/log/apache2 -mtime +1 -name "*.log.*" -exec rm {} \;
 find /var/log/apt -mtime +1 -name "*.log.*" -exec rm {} \;
 find /var/log -mtime +1 -name "messages.*" -exec rm {} \;
 find /var/log -mtime +1 -name "*.log.*" -exec rm {} \;
@@ -10,19 +9,24 @@ find /var/log -mtime +1 -name "syslog.*" -exec rm {} \;
 find /var/log -mtime +1 -name "btmp.*" -exec rm {} \;
 find /var/log -mtime +1 -name "wtmp.*" -exec rm {} \;
 
-logrow=$(grep -c "" /var/log/apache2/access.log)
+logrow=$(grep -c "" /var/log/caddy/access.log)
 if [ $logrow -ge 1000 ];then
-    > /var/log/apache2/access.log
+    > /var/log/caddy/access.log
 fi
 
-logrow=$(grep -c "" /var/log/apache2/error.log)
+logrow=$(grep -c "" /var/log/caddy/errors.log)
 if [ $logrow -ge 1000 ];then
-    > /var/log/apache2/error.log
+    > /var/log/caddy/errors.log
 fi
 
-logrow=$(grep -c "" /var/log/apache2/other_vhosts_access.log)
+logrow=$(grep -c "" /var/log/v2ray/access.log)
 if [ $logrow -ge 1000 ];then
-    > /var/log/apache2/other_vhosts_access.log
+    > /var/log/caddy/access.log
+fi
+
+logrow=$(grep -c "" /var/log/v2ray/error.log)
+if [ $logrow -ge 1000 ];then
+    > /var/log/caddy/error.log
 fi
 
 logrow=$(grep -c "" /var/log/alternatives.log)
@@ -55,11 +59,6 @@ if [ $logrow -ge 1000 ];then
     > /var/log/faillog
 fi
 
-logrow=$(grep -c "" /var/log/fontconfig.log)
-if [ $logrow -ge 1000 ];then
-    > /var/log/fontconfig.log
-fi
-
 logrow=$(grep -c "" /var/log/dpkg.log)
 if [ $logrow -ge 1000 ];then
     > /var/log/dpkg.log
@@ -85,11 +84,6 @@ if [ $logrow -ge 1000 ];then
     > /var/log/syslog
 fi
 
-logrow=$(grep -c "" /var/log/user.log)
-if [ $logrow -ge 1000 ];then
-    > /var/log/user.log
-fi
-
 logrow=$(grep -c "" /var/log/wtmp)
 if [ $logrow -ge 1000 ];then
     > /var/log/wtmp
@@ -103,11 +97,6 @@ fi
 logrow=$(grep -c "" /var/log/apt/term.log)
 if [ $logrow -ge 1000 ];then
     > /var/log/apt/term.log
-fi
-
-logrow=$(grep -c "" /usr/local/shadowsocksr/ssserver.log)
-if [ $logrow -ge 1000 ];then
-    > /usr/local/shadowsocksr/ssserver.log
 fi
 
 list=`wget  --no-check-certificate -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ip.txt|awk NF|sed ":a;N;s/\n/,/g;ta"`
