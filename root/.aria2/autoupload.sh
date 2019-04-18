@@ -1,47 +1,59 @@
 #!/bin/bash
-num="$2"
-path="$3" 
-downloadpath='/home' #下载目录
 
-if [ $num -eq 0 ]
-    then
-      exit 0
-fi
+GID="$1";
+FileNum="$2";
+File="$3";
+MaxSize="15728640"
+RemoteDIR="";  #上传到Onedrive的路径，默认为根目录，如果要上传到指定目录，方法看文章最后面。
+LocalDIR="/home/";  #Aria2下载目录，记得最后面加上/
 
-function getdir(){
-IFS=$'\n';for file in `ls "$1"`
-    do
-        if [ -d "$1/$file" ]  
-        then
-            getdir "$1/$file"
+if [[ -z $(echo "$FileNum" |grep -o '[0-9]*' |head -n1) ]]; then FileNum='0'; fi
+if [[ "$FileNum" -le '0' ]]; then exit 0; fi
+if [[ "$#" != '3' ]]; then exit 0; fi
+
+function LoadFile(){
+  IFS_BAK=$IFS
+  IFS=$'\n'
+  if [[ ! -d "$LocalDIR" ]]; then return; fi
+  if [[ -e "$File" ]]; then
+    if [[ $(dirname "$File") == $(readlink -f $LocalDIR) ]]; then
+      ONEDRIVE="onedrive";
+    else
+      ONEDRIVE="onedrive-d";
+    fi
+    FileLoad="${File/#$LocalDIR}"
+    while true
+      do
+        if [[ "$FileLoad" == '/' ]]; then return; fi
+        echo "$FileLoad" |grep -q '/';
+        if [[ "$?" == "0" ]]; then
+          FileLoad=$(dirname "$FileLoad");
         else
-            if [ "${1%/*}" = "$downloadpath" ] && [ $num -eq 1 ]
-            then
-                onedrive "$1"
-            elif [ $num -eq 1 ] 
-            then
-                onedrive "$1/$file"
-            else
-                onedrive -u "$downloadpath" "$1/$file"
-                fi
-        fi
-    done
-}
-
-while true; do
-filepath=$path 
-path=${path%/*};   
-if [ "$path" = "$downloadpath" ] 
-    then  
-      getdir "$filepath"
-      if [ -d $filepath ]
-      then
-        rm -r "$filepath"
-      else
-        rm  "$filepath"
+          break;
+        fi;
+      done;
+    if [[ "$FileLoad" == "$LocalDIR" ]]; then return; fi
+    if [[ -n "$RemoteDIR" ]]; then
+      Option=" -f $RemoteDIR";
+    else
+      Option="";
+    fi
+    EXEC="$(command -v $ONEDRIVE)";
+    if [[ -z "$EXEC" ]]; then return; fi
+    cd "$LocalDIR";
+    if [[ -e "$FileLoad" ]]; then
+      ItemSize=$(du -s "$FileLoad" |cut -f1 |grep -o '[0-9]*' |head -n1)
+      if [[ -z "$ItemSize" ]]; then return; fi
+      if [[ "$ItemSize" -ge "$MaxSize" ]]; then
+        echo -ne "\033[33m$File \033[0mtoo large to spik.\n";
+        return;
       fi
-      echo 3 > /proc/sys/vm/drop_caches
-      swapoff -a && swapon -a
-      exit 0
-fi
-done
+      eval "${EXEC}${Option}" \'"${FileLoad}"\';
+      if [[ $? == '0' ]]; then
+        rm -rf "$FileLoad";
+      fi
+    fi
+  fi
+  IFS=$IFS_BAK
+}
+LoadFile;
