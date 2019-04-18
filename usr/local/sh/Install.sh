@@ -9,11 +9,11 @@ long_bit=$(getconf LONG_BIT)
         if [ "$long_bit" = 32 ]; then
         aria2_bit=32bit
         v2ray_bit=32
-		caddy_bit=386
+	caddy_bit=386
 else
         aria2_bit=64bit
         v2ray_bit=64
-		caddy_bit=amd64
+	caddy_bit=amd64
 fi
 
 install_aria2()
