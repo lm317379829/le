@@ -1,59 +1,26 @@
 #!/bin/bash
+path=$3 #取原始路径，我的环境下如果是单文件则为/data/demo.png,如果是文件夹则该值为文件夹内某个文件比如/data/a/b/c/d.jpg
+downloadpath='/home'  #修改成Aria2下载文件夹
 
-GID="$1";
-FileNum="$2";
-File="$3";
-MaxSize="15728640"
-RemoteDIR="";  #上传到Onedrive的路径，默认为根目录，如果要上传到指定目录，方法看文章最后面。
-LocalDIR="/home/";  #Aria2下载目录，记得最后面加上/
+if [ $2 -eq 0 ]
+    then
+    exit 0
+fi
 
-if [[ -z $(echo "$FileNum" |grep -o '[0-9]*' |head -n1) ]]; then FileNum='0'; fi
-if [[ "$FileNum" -le '0' ]]; then exit 0; fi
-if [[ "$#" != '3' ]]; then exit 0; fi
-
-function LoadFile(){
-  IFS_BAK=$IFS
-  IFS=$'\n'
-  if [[ ! -d "$LocalDIR" ]]; then return; fi
-  if [[ -e "$File" ]]; then
-    if [[ $(dirname "$File") == $(readlink -f $LocalDIR) ]]; then
-      ONEDRIVE="onedrive";
-    else
-      ONEDRIVE="onedrive-d";
-    fi
-    FileLoad="${File/#$LocalDIR}"
-    while true
-      do
-        if [[ "$FileLoad" == '/' ]]; then return; fi
-        echo "$FileLoad" |grep -q '/';
-        if [[ "$?" == "0" ]]; then
-          FileLoad=$(dirname "$FileLoad");
-        else
-          break;
-        fi;
-      done;
-    if [[ "$FileLoad" == "$LocalDIR" ]]; then return; fi
-    if [[ -n "$RemoteDIR" ]]; then
-      Option=" -f $RemoteDIR";
-    else
-      Option="";
-    fi
-    EXEC="$(command -v $ONEDRIVE)";
-    if [[ -z "$EXEC" ]]; then return; fi
-    cd "$LocalDIR";
-    if [[ -e "$FileLoad" ]]; then
-      ItemSize=$(du -s "$FileLoad" |cut -f1 |grep -o '[0-9]*' |head -n1)
-      if [[ -z "$ItemSize" ]]; then return; fi
-      if [[ "$ItemSize" -ge "$MaxSize" ]]; then
-        echo -ne "\033[33m$File \033[0mtoo large to spik.\n";
-        return;
-      fi
-      eval "${EXEC}${Option}" \'"${FileLoad}"\';
-      if [[ $? == '0' ]]; then
-        rm -rf "$FileLoad";
-      fi
-    fi
-  fi
-  IFS=$IFS_BAK
-}
-LoadFile;
+while true; do  #提取下载文件根路径，如把/data/a/b/c/d.jpg变成/data/a
+filepath=$path
+path=${path%/*}; 
+if [ "$path" = "$downloadpath" ] && [ $2 -eq 1 ]  #如果下载的是单个文件
+    then
+    php /var/www/html/oneindex/one.php upload:file $filepath /$folder/
+    rm -rf $filepath
+    php /var/www/html/oneindex/one.php cache:refresh
+    exit 0
+elif [ "$path" = "$downloadpath" ]
+    then
+    php /var/www/html/oneindex/one.php upload:folder $filepath /$folder/
+    rm -rf "$filepath/"
+    php /var/www/html/oneindex/one.php cache:refresh
+    exit 0
+fi
+done
